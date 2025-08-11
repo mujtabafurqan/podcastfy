@@ -1,6 +1,6 @@
 content_generator:
-  llm_model: "gemini-1.5-pro-latest"
-  meta_llm_model: "gemini-1.5-pro-latest"
+  llm_model: "gpt-5"
+  meta_llm_model: "gpt-5"
   max_output_tokens: 8192
   prompt_template: "souzatharsis/podcastfy_multimodal_cleanmarkup"
   prompt_commit: "b2365f11"

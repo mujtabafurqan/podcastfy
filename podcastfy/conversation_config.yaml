@@ -5,10 +5,9 @@ conversation_style:
 roles_person1: "main summarizer"
 roles_person2: "questioner/clarifier"
 dialogue_structure: 
-  - "Introduction"
   - "Main Content Summary"
   - "Conclusion"
-podcast_name: "PODCASTIFY"
+podcast_name: "PLY"
 podcast_tagline: "Your Personal Generative AI Podcast"
 output_language: "English"
 engagement_techniques: 
@@ -17,7 +16,7 @@ engagement_techniques:
   - "analogies"
   - "humor"
 creativity: 1
-user_instructions: ""
+user_instructions: "DURATION CONSTRAINT: Keep the conversation concise and targeted for approximately 3-4 minutes of speaking time (roughly 400-600 words total). Focus on the most important and engaging aspects of the content while maintaining natural dialogue flow. Each speaker turn should be reasonably short but the overall conversation should feel complete within this time constraint."
 max_num_chunks: 8 # maximum number of rounds of discussions in longform
 min_chunk_size: 600 # minimum number of characters to generate a round of discussion in longform
 

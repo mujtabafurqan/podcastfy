@@ -48,3 +48,19 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - PYTHONPATH=/app
     command: pytest -n auto --dist loadfile
+
+  # PostgreSQL database for async API
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: podcastfy_dev
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: devpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  postgres_data:

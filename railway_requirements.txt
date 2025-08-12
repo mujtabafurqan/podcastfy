@@ -1,0 +1,24 @@
+# Minimal Railway-optimized requirements
+fastapi==0.103.0
+uvicorn[standard]==0.23.2
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+alembic==1.13.0
+pydantic==2.4.2
+python-multipart==0.0.6
+python-dotenv==1.0.0
+
+# Podcastfy core dependencies
+openai==1.51.2
+google-generativeai==0.8.3
+beautifulsoup4==4.12.3
+requests==2.31.0
+pydub==0.25.1
+edge-tts==6.1.15
+elevenlabs==1.12.1
+youtube-transcript-api==0.6.2
+
+# Additional utilities
+jinja2==3.1.4
+pathlib
+asyncio

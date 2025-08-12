@@ -24,8 +24,9 @@ RUN pip install --no-cache-dir hypercorn==0.14.4
 # Copy the entire project
 COPY . .
 
-# Create data directories
-RUN mkdir -p data/audio data/transcripts
+# Create data directories with proper permissions
+RUN mkdir -p /data/audio /data/transcripts && \
+    chmod -R 777 /data
 
 # Expose port (Railway will set $PORT environment variable)
 EXPOSE $PORT

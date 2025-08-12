@@ -179,7 +179,10 @@ async def serve_audio_file(podcast_id: str, db: Session = Depends(get_db)):
     
     # Use the audio_filename stored in database if available
     if podcast.audio_filename:
-        audio_path = f"data/audio/{podcast.audio_filename}"
+        # Check both local and shared volume paths
+        audio_path = f"/data/audio/{podcast.audio_filename}"
+        if not os.path.exists(audio_path):
+            audio_path = f"data/audio/{podcast.audio_filename}"
         if os.path.exists(audio_path):
             return FileResponse(
                 audio_path,

@@ -108,9 +108,21 @@ async def process_podcast_job(podcast_id: str):
         if not audio_path or not os.path.exists(audio_path):
             raise Exception("Audio generation failed - no output file produced")
         
-        # The existing generate_podcast already saves to data/audio/
-        # We just need to update the database with the correct filename
+        # The existing generate_podcast saves to data/audio/
+        # Copy to shared volume for Railway deployment
         filename = os.path.basename(audio_path)
+        shared_audio_path = f"/data/audio/{filename}"
+        
+        # Ensure shared directory exists
+        os.makedirs("/data/audio", exist_ok=True)
+        
+        # Copy file to shared volume if in Railway environment
+        if os.path.exists("/data/audio"):
+            import shutil
+            shutil.copy2(audio_path, shared_audio_path)
+            logger.info(f"Audio copied to shared volume: {shared_audio_path}")
+        
+        logger.info(f"Audio saved to: {audio_path}")
         
         # Update database with completion
         with get_db_session() as db:

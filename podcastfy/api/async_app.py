@@ -180,27 +180,32 @@ async def serve_audio_file(podcast_id: str, db: Session = Depends(get_db)):
     # Use the audio_filename stored in database if available
     if podcast.audio_filename:
         # Check both local and shared volume paths
-        audio_path = f"/data/audio/{podcast.audio_filename}"
-        if not os.path.exists(audio_path):
-            audio_path = f"data/audio/{podcast.audio_filename}"
-        if os.path.exists(audio_path):
-            return FileResponse(
-                audio_path,
-                media_type="audio/mpeg",
-                filename=f"{podcast.title or 'podcast'}.mp3"
-            )
+        for base_path in ["/data/audio/", "data/audio/"]:
+            audio_path = os.path.join(base_path, podcast.audio_filename)
+            if os.path.exists(audio_path):
+                logger.info(f"Serving audio file for podcast {podcast_id}: {audio_path}")
+                return FileResponse(
+                    audio_path,
+                    media_type="audio/mpeg",
+                    filename=f"{podcast.title or 'podcast'}.mp3"
+                )
     
     # Fallback: try to find file using existing patterns
     audio_path = get_existing_audio_path(str(podcast.id))
-    if not audio_path or not os.path.exists(audio_path):
-        logger.error(f"Audio file not found for podcast {podcast_id}. Expected: {podcast.audio_filename}")
-        raise HTTPException(status_code=404, detail="Audio file not found")
+    if audio_path and os.path.exists(audio_path):
+        logger.info(f"Found audio file using pattern matching for podcast {podcast_id}: {audio_path}")
+        return FileResponse(
+            audio_path,
+            media_type="audio/mpeg",
+            filename=f"{podcast.title or 'podcast'}.mp3"
+        )
     
-    return FileResponse(
-        audio_path,
-        media_type="audio/mpeg",
-        filename=f"{podcast.title or 'podcast'}.mp3"
-    )
+    # Enhanced error logging with more details
+    logger.error(f"Audio file not found for podcast {podcast_id}. "
+                f"Database filename: {podcast.audio_filename}, "
+                f"Checked paths: /data/audio/, data/audio/, "
+                f"Pattern matching attempted for UUID: {podcast.id}")
+    raise HTTPException(status_code=404, detail="Audio file not found")
 
 @app.get("/api/health")
 async def health_check():

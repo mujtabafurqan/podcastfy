@@ -115,6 +115,7 @@ def get_existing_audio_path(podcast_id: str) -> Optional[str]:
     
     This function checks for audio files following the existing patterns observed
     in the data/audio directory: both UUID-based and truncated UUID patterns.
+    Also checks both Railway volume mount path (/data/audio/) and local path (data/audio/).
     
     Args:
         podcast_id: UUID of the podcast
@@ -122,22 +123,24 @@ def get_existing_audio_path(podcast_id: str) -> Optional[str]:
     Returns:
         str: Path to existing audio file if found, None otherwise
     """
-    # Use existing data/audio directory structure (observed pattern)
-    # First try with truncated UUID (16 chars, removing hyphens) 
-    audio_path = f"data/audio/podcast_{str(podcast_id).replace('-', '')[:16]}.mp3"
+    # Generate all possible filename patterns
+    uuid_str = str(podcast_id)
+    uuid_no_hyphens = uuid_str.replace('-', '')
+    uuid_truncated = uuid_no_hyphens[:16]  # First 16 chars without hyphens
     
-    if os.path.exists(audio_path):
-        return audio_path
+    patterns = [
+        f"podcast_{uuid_truncated}.mp3",  # Truncated UUID (16 chars)
+        f"podcast_{uuid_str}.mp3",        # Full UUID with hyphens
+        f"podcast_{uuid_no_hyphens}.mp3", # Full UUID without hyphens (32 chars)
+    ]
     
-    # Also check with full UUID
-    audio_path_full = f"data/audio/podcast_{podcast_id}.mp3"
-    if os.path.exists(audio_path_full):
-        return audio_path_full
+    # Check both Railway volume mount path and local development path
+    base_paths = ["/data/audio/", "data/audio/"]
     
-    # Check with UUID without hyphens (32 chars)
-    uuid_no_hyphens = str(podcast_id).replace('-', '')
-    audio_path_no_hyphens = f"data/audio/podcast_{uuid_no_hyphens}.mp3"
-    if os.path.exists(audio_path_no_hyphens):
-        return audio_path_no_hyphens
+    for base_path in base_paths:
+        for pattern in patterns:
+            audio_path = os.path.join(base_path, pattern)
+            if os.path.exists(audio_path):
+                return audio_path
     
     return None

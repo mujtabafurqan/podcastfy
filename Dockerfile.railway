@@ -1,0 +1,34 @@
+# Railway Web Service Dockerfile for Podcastfy Async API
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8000
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install hypercorn for ASGI serving
+RUN pip install --no-cache-dir hypercorn==0.14.4
+
+# Copy the entire project
+COPY . .
+
+# Create data directories
+RUN mkdir -p data/audio data/transcripts
+
+# Expose port (Railway will set $PORT environment variable)
+EXPOSE $PORT
+
+# Use hypercorn to serve the FastAPI app
+CMD ["sh", "-c", "hypercorn podcastfy.api.async_app:app --bind 0.0.0.0:$PORT --workers 1"]

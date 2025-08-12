@@ -1,0 +1,27 @@
+# Railway Worker Service Dockerfile for Podcastfy Background Jobs
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the entire project
+COPY . .
+
+# Create data directories
+RUN mkdir -p data/audio data/transcripts
+
+# Run the background worker
+CMD ["python", "-m", "podcastfy.worker"]

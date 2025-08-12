@@ -4,7 +4,7 @@
     "builder": "nixpacks"
   },
   "deploy": {
-    "numReplicas": 1,
+    "startCommand": "python railway_web.py",
     "restartPolicyType": "always"
   }
 }

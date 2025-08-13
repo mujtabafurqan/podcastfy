@@ -177,10 +177,13 @@ async def get_podcast_library(db: Session = Depends(get_db)):
 async def serve_audio_file(podcast_id: str, db: Session = Depends(get_db)):
     """Serve audio file for completed podcast."""
     
+    logger.info(f"Received podcast_id: '{podcast_id}' (length: {len(podcast_id)})")
+    
     # Validate UUID format
     try:
         uuid.UUID(podcast_id)
     except ValueError:
+        logger.error(f"Invalid UUID format received: '{podcast_id}' (length: {len(podcast_id)})")
         raise HTTPException(status_code=400, detail=f"Invalid UUID format: {podcast_id}")
     
     podcast = get_podcast_by_id(db, podcast_id)
@@ -213,11 +216,22 @@ async def serve_audio_file(podcast_id: str, db: Session = Depends(get_db)):
             filename=f"{podcast.title or 'podcast'}.mp3"
         )
     
+    # Last resort: check if any audio files exist in the directory and list them
+    available_files = []
+    for base_path in ["/data/audio/", "data/audio/"]:
+        if os.path.exists(base_path):
+            try:
+                files = [f for f in os.listdir(base_path) if f.endswith('.mp3')]
+                available_files.extend([os.path.join(base_path, f) for f in files])
+            except OSError:
+                continue
+    
     # Enhanced error logging with more details
     logger.error(f"Audio file not found for podcast {podcast_id}. "
                 f"Database filename: {podcast.audio_filename}, "
                 f"Checked paths: /data/audio/, data/audio/, "
-                f"Pattern matching attempted for UUID: {podcast.id}")
+                f"Pattern matching attempted for UUID: {podcast.id}, "
+                f"Available audio files: {available_files}")
     raise HTTPException(status_code=404, detail="Audio file not found")
 
 @app.get("/api/health")

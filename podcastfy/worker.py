@@ -108,21 +108,26 @@ async def process_podcast_job(podcast_id: str):
         if not audio_path or not os.path.exists(audio_path):
             raise Exception("Audio generation failed - no output file produced")
         
-        # The existing generate_podcast saves to data/audio/
-        # Copy to shared volume for Railway deployment
+        # Upload to Cloudflare R2 storage
         filename = os.path.basename(audio_path)
-        shared_audio_path = f"/data/audio/{filename}"
         
-        # Ensure shared directory exists
-        os.makedirs("/data/audio", exist_ok=True)
+        try:
+            from ..utils.r2_storage import get_r2_storage
+            r2_storage = get_r2_storage()
+            
+            # Upload to R2 with the same filename
+            public_url = r2_storage.upload_audio_file(audio_path, filename)
+            logger.info(f"Audio uploaded to R2: {public_url}")
+            
+            # Store the R2 URL for later use
+            audio_url = public_url
+            
+        except Exception as r2_error:
+            logger.error(f"Failed to upload to R2 storage: {r2_error}")
+            raise Exception(f"Audio generation completed but R2 upload failed: {r2_error}")
         
-        # Copy file to shared volume if in Railway environment
-        if os.path.exists("/data/audio"):
-            import shutil
-            shutil.copy2(audio_path, shared_audio_path)
-            logger.info(f"Audio copied to shared volume: {shared_audio_path}")
-        
-        logger.info(f"Audio saved to: {audio_path}")
+        logger.info(f"Audio saved locally: {audio_path}")
+        logger.info(f"Audio available at: {audio_url}")
         
         # Update database with completion
         with get_db_session() as db:
@@ -140,12 +145,14 @@ async def process_podcast_job(podcast_id: str):
             except Exception as e:
                 logger.warning(f"Could not calculate audio duration: {e}")
             
+            # Store both filename and R2 URL
             update_podcast_status(
                 db,
                 podcast_id,
                 "completed",
                 completed_at=datetime.utcnow(),
                 audio_filename=filename,
+                audio_url=audio_url,
                 title=title,
                 duration=duration
             )

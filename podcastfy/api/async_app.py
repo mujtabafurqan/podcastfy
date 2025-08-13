@@ -10,7 +10,7 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 from typing import List, Optional
@@ -193,6 +193,12 @@ async def serve_audio_file(podcast_id: str, db: Session = Depends(get_db)):
     if podcast.status != "completed":
         raise HTTPException(status_code=404, detail="Audio not ready")
     
+    # If we have a direct R2 URL, redirect to it
+    if podcast.audio_url and podcast.audio_url.startswith('http'):
+        logger.info(f"Redirecting to R2 URL for podcast {podcast_id}: {podcast.audio_url}")
+        return RedirectResponse(url=podcast.audio_url, status_code=302)
+    
+    # Fallback: serve from local filesystem (for older podcasts)
     # Use the audio_filename stored in database if available
     if podcast.audio_filename:
         # Check both local and shared volume paths

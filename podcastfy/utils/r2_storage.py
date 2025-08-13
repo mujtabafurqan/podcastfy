@@ -70,8 +70,8 @@ class R2Storage:
                 }
             )
             
-            # Generate public URL
-            public_url = f"https://pub-{self.account_id}.r2.dev/{object_key}"
+            # Generate public URL using the actual R2 dev subdomain
+            public_url = f"https://pub-3b8faeb66ae44311ae8a5f29a3215bd1.r2.dev/{object_key}"
             logger.info(f"Successfully uploaded to R2: {public_url}")
             
             return public_url
@@ -113,7 +113,7 @@ class R2Storage:
         Returns:
             str: Public URL of the file
         """
-        return f"https://pub-{self.account_id}.r2.dev/{object_key}"
+        return f"https://pub-3b8faeb66ae44311ae8a5f29a3215bd1.r2.dev/{object_key}"
     
     def delete_file(self, object_key: str) -> bool:
         """

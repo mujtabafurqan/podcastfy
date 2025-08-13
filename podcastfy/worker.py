@@ -112,7 +112,7 @@ async def process_podcast_job(podcast_id: str):
         filename = os.path.basename(audio_path)
         
         try:
-            from ..utils.r2_storage import get_r2_storage
+            from .utils.r2_storage import get_r2_storage
             r2_storage = get_r2_storage()
             
             # Upload to R2 with the same filename

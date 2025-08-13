@@ -8,7 +8,7 @@ in Cloudflare R2 storage using the S3-compatible API.
 import os
 import boto3
 from botocore.exceptions import ClientError
-from ..utils.logger import setup_logger
+from .logger import setup_logger
 
 logger = setup_logger(__name__)
 

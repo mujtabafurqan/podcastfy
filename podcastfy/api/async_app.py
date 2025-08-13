@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from pathlib import Path
 import uvicorn
+import uuid
 
 # Import existing functionality to maintain compatibility
 from .fast_app import load_base_config, merge_configs
@@ -137,6 +138,12 @@ async def generate_podcast_async(
 async def get_job_status(job_id: str, db: Session = Depends(get_db)):
     """Get the status of a podcast generation job."""
     
+    # Validate UUID format
+    try:
+        uuid.UUID(job_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Invalid UUID format: {job_id}")
+    
     podcast = get_podcast_by_id(db, job_id)
     if not podcast:
         raise HTTPException(status_code=404, detail="Job not found")
@@ -169,6 +176,12 @@ async def get_podcast_library(db: Session = Depends(get_db)):
 @app.get("/api/audio/{podcast_id}")
 async def serve_audio_file(podcast_id: str, db: Session = Depends(get_db)):
     """Serve audio file for completed podcast."""
+    
+    # Validate UUID format
+    try:
+        uuid.UUID(podcast_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Invalid UUID format: {podcast_id}")
     
     podcast = get_podcast_by_id(db, podcast_id)
     if not podcast:

@@ -1,11 +1,50 @@
+# Large unnecessary files for production
+podcastfy.ipynb
+*.ipynb
+
+# Development and testing files
+tests/
+test_*.py
+dev-requirements.txt
+docker-compose.yml
+
+# Documentation and examples  
+docs/
+paper/
+usage/
+README.md
+CHANGELOG.md
+GUIDELINES.md
+*.md
+
+# Git and development
 .git
 .gitignore
-.github
-__pycache__
+.github/
+
+# Python cache
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Environment and logs
 env/
 venv/
 .env
@@ -13,6 +52,13 @@ venv/
 .pytest_cache/
 .coverage
 htmlcov/
-dist/
-build/
-*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
